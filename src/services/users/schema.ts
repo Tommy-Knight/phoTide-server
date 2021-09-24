@@ -12,12 +12,11 @@ export interface UserMod extends Model<UserDocument> {
 
 const UsersSchema = new Schema<UserDocument>(
 	{
-		name: { type: String, required: true, default: "User" },
-		surname: { type: String, required: true, default: "Surname" },
+		username: { type: String, required: true, default: "User" },
 		email: { type: String, required: true },
 		password: { type: String, required: true },
-		favourites: { type: [], required: true },
-		avatar: { type: String },
+		favourites: { type: [] },
+		avatar: { type: String, default: "https://image.flaticon.com/icons/png/512/5173/5173555.png" },
 	},
 	{ timestamps: true }
 );

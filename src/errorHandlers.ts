@@ -7,7 +7,7 @@ export const notFoundErrorHandler = ({err, req, res, next}:any) => {
 };
 
 export const badRequestErrorHandler = ({err, req, res, next}:any) => {
-	if (err.status === 400) {
+	if (err.status) {
 		res.status(400).send(err.errors);
 	} else {
 		next(err);

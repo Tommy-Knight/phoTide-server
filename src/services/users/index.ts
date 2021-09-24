@@ -11,35 +11,6 @@ import UserModel from "../../services/users/schema";
 
 const usersRouter = express.Router();
 
-//><><><><> CREATES NEW USER, RETURNS ID <><><><><\\
-
-usersRouter.post("/register", async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const newUser = new User(req.body);
-		const { _id } = await newUser.save();
-		res.status(201).send({ _id });
-	} catch (error) {
-		next(error);
-	}
-});
-
-//><><><><> CHECKS CREDENTIALS, RETURNS NEW ACCESS TOKEN <><><><><\\
-
-usersRouter.post("/login", async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const { email, password } = req.body;
-		const user = await User.checkCredentials(email, password);
-		if (user) {
-			const accessToken = await JWTAuthenticate(user);
-			res.send({ accessToken });
-		} else {
-			next(createError(401, "Credentials not valid!"));
-		}
-	} catch (error) {
-		next(error);
-	}
-});
-
 //><><><><> GET ALL USERS <><><><><\\
 
 usersRouter.get("/", JWTAuthMiddleware, async (req: Request, res: Response, next: NextFunction) => {
@@ -154,17 +125,5 @@ usersRouter.post(
 		}
 	}
 );
-
-//><><><><> REFRESH TOKEN CHECK <><><><><\\
-
-usersRouter.post("/refreshToken", async (req, res: Response, next: NextFunction) => {
-	try {
-		const { actualRefreshToken } = req.body;
-		const { accessToken, refreshToken }: any = await refreshTokenFunc(actualRefreshToken);
-		res.send({ accessToken, refreshToken });
-	} catch (error) {
-		next(error);
-	}
-});
 
 export default usersRouter;

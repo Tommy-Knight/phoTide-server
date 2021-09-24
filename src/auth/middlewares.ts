@@ -5,7 +5,6 @@ import { NextFunction, Request, Response } from "express";
 import {Data} from "../types/index"
 
 export const JWTAuthMiddleware = async (req:Request, res:Response, next:NextFunction) => {
-  console.log(req.cookies);
   if (!req.cookies.accessToken) {
     next(createError(401, "please provide credentials in the authorization header!!"))
   } else {
