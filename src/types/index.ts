@@ -8,3 +8,7 @@ export interface UserType {
 	refreshToken?: string
 	_id?: string
 }
+
+export interface Data {
+	_id?: string;
+}

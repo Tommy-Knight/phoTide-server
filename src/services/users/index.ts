@@ -1,10 +1,13 @@
-import { JWTAuthenticate, refreshTokens } from "../../auth/tools";
+import { JWTAuthenticate, refreshTokenFunc } from "../../auth/tools";
 import { NextFunction, Request, Response } from "express";
-import { JWTMiddleware } from "../../auth/middlewares";
+import { JWTAuthMiddleware } from "../../auth/middlewares";
+import { UserType } from "../../types";
 import User from "./schema";
 import createError from "http-errors";
 import express from "express";
 import getUser from "./schema";
+import { uploadOnCloudinary } from "../../lib/cloudinary.js";
+import UserModel from "../../services/users/schema";
 
 const usersRouter = express.Router();
 
@@ -39,7 +42,7 @@ usersRouter.post("/login", async (req: Request, res: Response, next: NextFunctio
 
 //><><><><> GET ALL USERS <><><><><\\
 
-usersRouter.get("/", JWTMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+usersRouter.get("/", JWTAuthMiddleware, async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const users = await getUser.find({});
 		res.send(users);
@@ -50,29 +53,37 @@ usersRouter.get("/", JWTMiddleware, async (req: Request, res: Response, next: Ne
 
 // ><><><><> GET LOGGED IN USER INFO <><><><><\\
 
-usersRouter.get("/me", JWTMiddleware, async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		res.send(req.user);
-	} catch (error) {
-		console.log(error);
-		next(createError(500, "An error occurred while finding you"));
+usersRouter.get(
+	"/me",
+	JWTAuthMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			res.send(req.user);
+		} catch (error) {
+			console.log(error);
+			next(createError(500, "An error occurred while finding you"));
+		}
 	}
-});
+);
 
 // ><><><><> GET SPECIFIC USER BY ID <><><><><\\
 
-usersRouter.get("/:id", JWTMiddleware, async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const author = await getUser.find({ user: req.params.id });
-		author ? res.send(author) : next(createError(404, `User ${req.params.id} not found`));
-	} catch (error) {
-		next(error);
+usersRouter.get(
+	"/:id",
+	JWTAuthMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const author = await getUser.find({ user: req.params.id });
+			author ? res.send(author) : next(createError(404, `User ${req.params.id} not found`));
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // ><><><><> UPDATE USER INFO BY ID <><><><><\\
 
-usersRouter.put("/:id", JWTMiddleware, async (req: any, res: Response, next: NextFunction) => {
+usersRouter.put("/:id", JWTAuthMiddleware, async (req: any, res: Response, next: NextFunction) => {
 	try {
 		const userId = req.params.id.toString();
 		const myId = req.user._id;
@@ -97,32 +108,59 @@ usersRouter.put("/:id", JWTMiddleware, async (req: any, res: Response, next: Nex
 
 // ><><><><> DELETE USER BY ID <><><><><\\
 
-usersRouter.delete("/:id", JWTMiddleware, async (req: any, res: Response, next: NextFunction) => {
-	try {
-		const userId = req.params.id.toString();
-		const myId = req.user._id.toString();
+usersRouter.delete(
+	"/:id",
+	JWTAuthMiddleware,
+	async (req: any, res: Response, next: NextFunction) => {
+		try {
+			const userId = req.params.id.toString();
+			const myId = req.user._id.toString();
 
-		if (userId === myId) {
-			const deletedUser = await User.findOneAndDelete({ _id: myId });
-			if (deletedUser) {
-				res.status(204).send();
+			if (userId === myId) {
+				const deletedUser = await User.findOneAndDelete({ _id: myId });
+				if (deletedUser) {
+					res.status(204).send();
+				} else {
+					next(createError(404, `User Not Found!`));
+				}
 			} else {
-				next(createError(404, `User Not Found!`));
+				next(createError(404, `You are not authorized!`));
 			}
-		} else {
-			next(createError(404, `You are not authorized!`));
+		} catch (error) {
+			next(error);
 		}
-	} catch (error) {
-		next(error);
 	}
-});
+);
+
+usersRouter.post(
+	"/me/cover",
+	uploadOnCloudinary,
+	JWTAuthMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const userId: UserType = req.user;
+			const newAvatar = { avatar: req.file.path };
+			const updatedAvatar = await UserModel.findByIdAndUpdate(userId._id, newAvatar, {
+				new: true,
+			});
+			if (!updatedAvatar) {
+				return next(createError(404, "user not found"));
+			} else {
+				res.send(updatedAvatar);
+			}
+		} catch (error) {
+			console.log(error);
+			next(error);
+		}
+	}
+);
 
 //><><><><> REFRESH TOKEN CHECK <><><><><\\
 
 usersRouter.post("/refreshToken", async (req, res: Response, next: NextFunction) => {
 	try {
 		const { actualRefreshToken } = req.body;
-		const { accessToken, refreshToken }: any = await refreshTokens(actualRefreshToken);
+		const { accessToken, refreshToken }: any = await refreshTokenFunc(actualRefreshToken);
 		res.send({ accessToken, refreshToken });
 	} catch (error) {
 		next(error);

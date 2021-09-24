@@ -1,2 +1,2 @@
 # phoTide-server
- MongoDB - JWT - Cloudinary  
+ MongoDB - JWT - OAuth - Cloudinary
