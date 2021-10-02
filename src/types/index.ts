@@ -3,6 +3,7 @@ export interface UserType {
 	email?: string;
 	password?: string;
 	favourites?: [];
+	photos?:[];
 	avatar?: string;
 	refreshToken?: string
 	_id?: string

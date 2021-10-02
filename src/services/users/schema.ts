@@ -16,6 +16,7 @@ const UsersSchema = new Schema<UserDocument>(
 		email: { type: String, required: true },
 		password: { type: String, required: true },
 		favourites: { type: [] },
+		photos: { type: [] },
 		avatar: { type: String, default: "https://image.flaticon.com/icons/png/512/5173/5173555.png" },
 	},
 	{ timestamps: true }

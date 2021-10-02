@@ -104,7 +104,7 @@ usersRouter.delete(
 );
 
 usersRouter.post(
-	"/me/cover",
+	"/me/avatar",
 	uploadOnCloudinary,
 	JWTAuthMiddleware,
 	async (req: Request, res: Response, next: NextFunction) => {
@@ -118,6 +118,28 @@ usersRouter.post(
 				return next(createError(404, "user not found"));
 			} else {
 				res.send(updatedAvatar);
+			}
+		} catch (error) {
+			console.log(error);
+			next(error);
+		}
+	}
+);
+usersRouter.post(
+	"/me/photos",
+	uploadOnCloudinary,
+	JWTAuthMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const userId: UserType = req.user;
+			const newPhoto = { photo: req.file.path };
+			const updatedPhoto = await UserModel.findByIdAndUpdate(userId._id, newPhoto, {
+				new: true,
+			});
+			if (!updatedPhoto) {
+				return next(createError(404, "user not found"));
+			} else {
+				res.send(updatedPhoto);
 			}
 		} catch (error) {
 			console.log(error);
