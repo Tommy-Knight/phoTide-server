@@ -15,7 +15,7 @@ import cookieParser from "cookie-parser";
 // passport.use("facebook", facebookStrategy);
 // server.use(passport.initialize());
 
-const whitelist = [process.env.FRONTEND_URL, process.env.FRONTEND_PROD_URL, "http://localhost:3000"];
+const whitelist = [process.env.FRONTEND_URL, process.env.FRONTEND_PROD_URL];
 
 // ****************** MIDDLEWARES ****************************
 
@@ -30,7 +30,7 @@ server.use(
 			if (!origin || whitelist.indexOf(origin) !== -1) {
 				callback(null, true);
 			} else {
-				callback(new Error("Not allowed by cors!"));
+				callback(new Error(" 💀 Not allowed by cors!"));
 			}
 		},
 		credentials: true,
