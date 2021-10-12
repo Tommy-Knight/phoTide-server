@@ -15,7 +15,7 @@ import cookieParser from "cookie-parser";
 // passport.use("facebook", facebookStrategy);
 // server.use(passport.initialize());
 
-const whitelist = [process.env.FRONTEND_URL, process.env.FRONTEND_PROD_URL];
+const whitelist = [process.env.FRONTEND_URL, process.env.FRONTEND_PROD_URL, process.env.BACKEND_URL];
 
 // ****************** MIDDLEWARES ****************************
 

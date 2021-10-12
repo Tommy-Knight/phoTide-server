@@ -18,6 +18,7 @@ const UsersSchema = new Schema<UserDocument>(
 		favourites: { type: [] },
 		photos: { type: [] },
 		avatar: { type: String, default: "https://image.flaticon.com/icons/png/512/5173/5173555.png" },
+		refreshToken: {type: String}
 	},
 	{ timestamps: true }
 );

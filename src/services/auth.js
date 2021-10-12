@@ -6,7 +6,6 @@ import UserModel from "./users/schema"
 
 const authRouter = Router()
 
-
 const COOKIE_SETTINGS = { httpOnly: true, sameSite: 'none', secure: true }
 
 authRouter.post("/login", async (req, res, next) => {
